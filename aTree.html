@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>My Page</title>
+</head>
+
+<body>
+
+<header>
+	<h1>My Header</h1>
+</header>
+
+<section id="content">	
+	
+</section>
+
+<footer>
+<footer>		
+<script type="text/javascript">
+	
+	var contentRoot = document.getElementById("content");	
+	makeAddBtn(contentRoot);
+	
+	function makeAddBtn(parent) {
+		var list = document.createElement("ul");
+		var addItemBtn = document.createElement("a");
+		addItemBtn.setAttribute("href", "#");
+		addItemBtn.setAttribute("id", parent.childNodes.length);
+		addItemBtn.innerHTML = "Add Item";
+		addItemBtn.onclick = function(e) {
+			var listItem = document.createElement("li");
+			listItem.innerHTML = "Item " + (list.childNodes.length + 1) + " | ";
+			makeAddBtn(listItem);
+			list.appendChild(listItem);
+			e.preventDefault();
+		};
+		parent.appendChild(addItemBtn);	
+		parent.appendChild(list);			
+	}
+	
+	
+</script>
+</body>
+</html>
