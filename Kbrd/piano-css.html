@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Keyboard</title>
+	<style type="text/css">
+		#keyboard {
+			overflow: auto;
+			border: 1px solid #ddd;
+		}
+		#infoPanel {
+			border: 1px solid #333;
+			font-size: 24pt;
+		}
+		.whiteKey {    
+			background-color: #fff;
+			width: 50px;
+			height: 210px;
+			border: 1px solid #ccc;
+			border-radius: 2px 2px 4px 4px;
+		}
+		.blackKey {
+			border-radius: 2px 2px 5px 5px;
+			background-color: #0c0c0c;
+			width: 28px;
+			height: 110px;
+		}	
+	</style>	
+</head>
+<body>
+	<div id="keyboard"></div>
+	<div id="infoPanel"></div>
+	<script src="assets/js/jsEar.core.js"></script>
+    <script src="assets/js/jsEar.piano-css.js"></script>
+    <script src="assets/js/jsEar.events.js"></script>
+	<script>
+		jsEar('piano', 'events', function (kbrd) {
+            var i,
+                audioFile,
+                info = document.getElementById("infoPanel"),
+                keys;
+
+            kbrd.elem = document.getElementById("keyboard");
+			kbrd.whiteKeyClass = "whiteKey";
+			kbrd.blackKeyClass = "blackKey";
+
+			kbrd.init();
+
+            keys = kbrd.elem.getElementsByTagName('div');
+            for (i = 0; i < keys.length; i += 1) {
+                audioFile = 'assets/sounds/piano/_' + keys[i].note.midiNote + '.mp3';
+                var snd = document.createElement('audio');
+                snd.setAttribute('src', audioFile);
+                snd.load();
+                snd.addEventListener("load", function () {
+                    console.log('sound loaded');
+                }, true);
+
+/*                kbrd.loadSound(audioFile, function (snd) {
+                    console.dir(snd);
+                    info.innerHTML += "loading " + snd + "<br />";
+                });
+                */
+            }
+
+			kbrd.onKeyDown(function (key) {
+				key.originalColor = key.style.backgroundColor;
+				key.style.backgroundColor = "#eee";        
+				info.innerHTML = key.note.midiNote.toString();
+			});
+			
+			kbrd.onKeyUp(function (key) {
+				key.style.backgroundColor = key.originalColor;
+				info.innerHTML = "";
+			});        
+			
+		});
+	</script>
+	
+</body>

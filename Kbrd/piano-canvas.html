@@ -3,18 +3,22 @@
 <head>
 	<title>Keyboard</title>
 	<style type="text/css">
-			#frame {
+		#frame {
 			margin: 20px;
 			padding: 20px;
-			//width: 602px;
+			/*
+			width: 602px;
+			*/
 			height: 202px;
 			background-color: #f4f4f4;
 			border-radius: 20px;
 			overflow: auto;
 		}
 
-		#kbrd {  
-		  // border: solid 1px #c00;
+		#kbrd {
+		  /*
+		  border: solid 1px #c00;
+		  */
 		}
 	</style>	
 </head>
@@ -34,19 +38,19 @@
 	}
 
 	// parameters
-	var whtKeyWidth = 40;
-	var whtKeyHeight = 180;
-	var blkKeyWidth = 22;
-	var blkKeyHeight = 100
+	var whtKeyWidth = 40,
+        whtKeyHeight = 180,
+        blkKeyWidth = 22,
+        blkKeyHeight = 100,
 
-	var numOfOctaves = 3;
-	var octaveWidth = whtKeyWidth * 7;
+        numOfOctaves = 3
+        octaveWidth = whtKeyWidth * 7,
 
-	var keys = [];
-	var whtKeyIx = 0, blkKeyIx = 0;
+        keys = [],
+        i = 0, whtKeyIx = 0, blkKeyIx = 0,
 
-	var blkKeySpan1 = (whtKeyWidth * 3 - blkKeyWidth * 2) / 3;
-	var blkKeySpan2 = (whtKeyWidth * 4 - blkKeyWidth * 3) / 4;
+        blkKeySpan1 = (whtKeyWidth * 3 - blkKeyWidth * 2) / 3,
+        blkKeySpan2 = (whtKeyWidth * 4 - blkKeyWidth * 3) / 4;
 
 	// init keys
 	for (i = 0; i < 12; ++i) {
