@@ -37,7 +37,7 @@
             var i,
                 audioFile,
                 info = document.getElementById("infoPanel"),
-                keys;
+                keys, key;
 
             kbrd.elem = document.getElementById("keyboard");
 			kbrd.whiteKeyClass = "whiteKey";
@@ -47,13 +47,15 @@
 
             keys = kbrd.elem.getElementsByTagName('div');
             for (i = 0; i < keys.length; i += 1) {
+                key = keys[i];
                 audioFile = 'assets/sounds/piano/_' + keys[i].note.midiNote + '.mp3';
-                var snd = document.createElement('audio');
-                snd.setAttribute('src', audioFile);
-                snd.load();
-                snd.addEventListener("load", function () {
-                    console.log('sound loaded');
-                }, true);
+                var snd = document.createElement('audio'); //new Audio();
+                key.note.sound = snd;
+                snd.src = audioFile;
+                snd.addEventListener("loadeddata", function (e) {
+                    console.log(e);
+                    info.innerHTML = "loading " + key.note.midiNote;
+                }, false);
 
 /*                kbrd.loadSound(audioFile, function (snd) {
                     console.dir(snd);
@@ -66,6 +68,8 @@
 				key.originalColor = key.style.backgroundColor;
 				key.style.backgroundColor = "#eee";        
 				info.innerHTML = key.note.midiNote.toString();
+                key.note.sound.load();
+                key.note.sound.play();
 			});
 			
 			kbrd.onKeyUp(function (key) {
