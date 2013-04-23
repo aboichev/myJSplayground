@@ -1,10 +1,10 @@
 (function() {
-    var port = 8080,
+    var port = 8888,
         http = require("http"),
         url = require("url"),
         fs = require("fs");
 
-    http.createServer(onRequest).listen(port);
+    http.createServer(onRequest).listen(process.env.PORT || port);
     console.log("Server has started. Listening for requests on port " + port + ".");
 
 
