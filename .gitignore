@@ -4,6 +4,7 @@
 *.pydevproject
 .project
 .metadata
+.c9revisions/
 bin/
 tmp/
 *.tmp

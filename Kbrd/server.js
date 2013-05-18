@@ -1,11 +1,10 @@
 (function() {
-    var port = 8888,
-        http = require("http"),
+    var http = require("http"),
         url = require("url"),
         fs = require("fs");
 
-    http.createServer(onRequest).listen(process.env.PORT || port);
-    console.log("Server has started. Listening for requests on port " + port + ".");
+    http.createServer(onRequest).listen(process.env.PORT, process.env.IP);
+    console.log("Server has started. Listening for requests on port " +  process.env.PORT + ".");
 
 
 
@@ -37,7 +36,6 @@
 
     function serveStaticFile(response, filename, contentType) {
         contentType = typeof contentType !== 'undefined' ? contentType : "text/html";
-
         fs.exists(filename, function (exists) {
             if (!exists) {
                 http404(response);
@@ -58,18 +56,18 @@
     function onRequest(request, response) {
 
         var uri = url.parse(request.url).pathname,
-            currDir = process.cwd();
+            currDir = __dirname;            
 
-        log(request);
+        console.log(uri);
 
         // route sound resource
-        if (uri.indexOf('/assets/sounds/piano/') == 0) {
+        if (uri.indexOf('/assets/sounds/piano/') === 0) {
             serveStaticFile(response, currDir + uri, "audio/mpeg");
             return;
         }
 
         switch (uri) {
-            case "/":
+            case "/":            
                 serveStaticFile(response, currDir + "/piano-css.html");
                 break;
             case "/canvas/":
