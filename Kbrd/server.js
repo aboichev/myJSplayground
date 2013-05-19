@@ -22,20 +22,23 @@
 
     function http404 (response) {
         response.writeHead(404, {"Content-Type": "text/html"});
-        response.write(html("en", "404","<h1>Sorry, this 404 page is not what you're looking for.</h1>"));
+        response.write(html("en",
+            "404","<h1>Sorry, this 404 page is not what you're looking for.</h1>"));
         response.end();
         console.log(404);
     }
 
     function http500 (response) {
         response.writeHead(500, {"Content-Type": "text/html"});
-        response.write(html("en", "Server Error 500","<h1>Sorry, something broke. Try again later (500)</h1>"));
+        response.write(html("en",
+            "Server Error 500","<h1>Sorry, something broke. Try again later (500)</h1>"));
         response.end();
         console.log(500);
     }
 
     function serveStaticFile(response, filename, contentType) {
-        contentType = typeof contentType !== 'undefined' ? contentType : "text/html";
+        contentType = 
+            typeof contentType !== 'undefined' ? contentType : "text/html";
         fs.exists(filename, function (exists) {
             if (!exists) {
                 http404(response);
@@ -68,22 +71,40 @@
 
         switch (uri) {
             case "/":            
-                serveStaticFile(response, currDir + "/piano-css.html");
+                serveStaticFile(response,
+                                currDir + "/piano-css.html");
+                break;
+            case "/proto/":
+                serveStaticFile(response,
+                                currDir + "/proto-1.html");
                 break;
             case "/canvas/":
-                serveStaticFile(response, currDir + "/piano-canvas.html");
+                serveStaticFile(response,
+                                currDir + "/piano-canvas.html");
                 break;
             case "/canvas":
-                serveStaticFile(response, currDir + "/piano-canvas.html");
+                serveStaticFile(response,
+                                currDir + "/piano-canvas.html");
+                break;
+            case "/assets/js/earcat.js":
+                serveStaticFile(response,
+                                currDir + "/assets/js/earcat.js",
+                                "application/javascript"); 
                 break;
             case "/assets/js/jsEar.core.js":
-                serveStaticFile(response, currDir + "/assets/js/jsEar.core.js", "application/javascript");
+                serveStaticFile(response,
+                                currDir + "/assets/js/jsEar.core.js",
+                                "application/javascript");
                 break;
             case "/assets/js/jsEar.piano-css.js":
-                serveStaticFile(response, currDir + "/assets/js/jsEar.piano-css.js", "application/javascript");
+                serveStaticFile(response,
+                                currDir + "/assets/js/jsEar.piano-css.js",
+                                "application/javascript");
                 break;
             case "/assets/js/jsEar.events.js":
-                serveStaticFile(response, currDir + "/assets/js/jsEar.events.js", "application/javascript");
+                serveStaticFile(response,
+                                currDir + "/assets/js/jsEar.events.js",
+                                "application/javascript");
                 break;
             default:
                 http404(response);

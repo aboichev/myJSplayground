@@ -135,7 +135,7 @@ jsEar.prototype = {
             midiNote: (octave + 1) * 12 + noteId,
             octave: octave,
             noteId: noteId
-        }
+        };
     },
 
     loadSound: function (src, clbk) {

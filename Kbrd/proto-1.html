@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Proto 1</title>
+</head>
+<body>
+<div id="keys">
+    <button id="play">Play</button>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script src="/assets/js/earcat.js"></script>
+<script>
+    $(document).ready(function() {
+        
+        var eCat = new EarCat();        
+        // init
+        eCat.init();     
+        eCat.loadSounds(60, 64, 67, 72);        
+
+        $('#play').on('click', function (e) {  
+
+           var seq = { 
+                notesInBar: 8,
+                events : [
+                    { pos: 0, len: 4, snd: 60 },
+                    { pos: 2, len: 2, snd: 64 },
+                    { pos: 4, len: 2, snd: 67 },
+                    { pos: 6, len: 2, snd: 72 },
+                    { pos: 12, len: 8, snd: 60 },
+                    { pos: 12, len: 8, snd: 64 },
+                    { pos: 12, len: 8, snd: 67 },
+                    { pos: 12, len: 8, snd: 72 }
+                ]
+            };
+           eCat.playSequence(seq);
+
+        });
+        
+    });
+</script>
+</body>
+</html>

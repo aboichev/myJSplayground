@@ -27,6 +27,10 @@
 	</style>	
 </head>
 <body>
+    <div>
+        W: <span id="clientW"></span>
+        H: <span id="clientH"></span>
+    </div>
 	<div id="keyboard"></div>
 	<div id="infoPanel"></div>
 	<script src="assets/js/jsEar.core.js"></script>
@@ -36,32 +40,37 @@
 		jsEar('piano', 'events', function (kbrd) {
             var i,
                 audioFile,
+                clientInfoW = document.getElementById("clientW"),
+                clientInfoH = document.getElementById("clientH"),
                 info = document.getElementById("infoPanel"),
-                keys, key;
+                keys, key,
+                displayClientSize = function () {
+                // update client width
+                    clientInfoW.innerHTML = kbrd.elem.clientWidth;
+                    clientInfoH.innerHTML = kbrd.elem.clientHeight;
+                };                
+                
+
+            
 
             kbrd.elem = document.getElementById("keyboard");
 			kbrd.whiteKeyClass = "whiteKey";
 			kbrd.blackKeyClass = "blackKey";
-
 			kbrd.init();
+            
+            window.onresize = function(event) {
+                displayClientSize();
+            };
+            displayClientSize();         
 
             keys = kbrd.elem.getElementsByTagName('div');
             for (i = 0; i < keys.length; i += 1) {
                 key = keys[i];
                 audioFile = 'assets/sounds/piano/_' + keys[i].note.midiNote + '.mp3';
-                var snd = document.createElement('audio'); //new Audio();
+                var snd = new Audio();
                 key.note.sound = snd;
                 snd.src = audioFile;
-                snd.addEventListener("loadeddata", function (e) {
-                    console.log(e);
-                    info.innerHTML = "loading " + key.note.midiNote;
-                }, false);
 
-/*                kbrd.loadSound(audioFile, function (snd) {
-                    console.dir(snd);
-                    info.innerHTML += "loading " + snd + "<br />";
-                });
-                */
             }
 
 			kbrd.onKeyDown(function (key) {
@@ -75,7 +84,8 @@
 			kbrd.onKeyUp(function (key) {
 				key.style.backgroundColor = key.originalColor;
 				info.innerHTML = "";
-			});        
+			});         
+
 			
 		});
 	</script>
