@@ -130,6 +130,7 @@
                         range.lowest = key;
                         key.originalColor = key.style.backgroundColor;
                         key.style.backgroundColor = "#efe";
+                        key.isDown = false;
                     }
                     else {
                         if (range.highest) {
@@ -139,6 +140,7 @@
                         range.highest = key;
                         key.originalColor = key.style.backgroundColor;
                         key.style.backgroundColor = "#fee";
+                        key.isDown = false;                        
                         
                          if (range.highest.note.midiNote < range.lowest.note.midiNote) {
                             var tmp = range.highest;

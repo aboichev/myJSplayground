@@ -1,4 +1,5 @@
 // Events module
+/*global jsEar: false */
 jsEar.modules.events = function (e) {
 
     e.onKeyDown = function (callbk) {

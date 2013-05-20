@@ -6,8 +6,6 @@
     http.createServer(onRequest).listen(process.env.PORT, process.env.IP);
     console.log("Server has started. Listening for requests on port " +  process.env.PORT + ".");
 
-
-
     function log(request) {
         var path = url.parse(request.url).pathname;
         process.stdout.write(request.connection.remoteAddress + " -> " + request.method + " " + path + " -> ");
