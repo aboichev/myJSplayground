@@ -2,25 +2,94 @@
 <html>
 <head>
     <title>Proto 1</title>
+    <style type="text/css">
+        
+        .header nav {
+            float:right;
+        }
+        .keyboard {
+            clear: both;
+        }    
+		.whiteKey {    
+			background-color: #fff;
+			width: 50px;
+			height: 210px;
+			border: 1px solid #ccc;
+			border-radius: 2px 2px 4px 4px;
+		}
+		.blackKey {
+			border-radius: 2px 2px 5px 5px;
+			background-color: #0c0c0c;
+			width: 28px;
+			height: 110px;
+		}
+        .hide {
+            display: none;
+        }
+	</style>    
 </head>
 <body>
-<div id="keys">
-    <button id="play">Play</button>
-</div>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-<script src="/assets/js/earcat.js"></script>
+    <section class="header">
+        <nav><a href="#" id="rangeBtn">Select Range</a></nav>
+    </section>
+    <div id='main'>
+        <div class='keyboard'></div>
+        <div class='controls'>
+            <button id='playBtn'>Play</button>
+        </div>
+    </div>
+    <div id='selectRange' class='hide'>
+        <h2>Please Select Lowest And Highest note</h2>
+        <div class='keyboard'></div>
+        <div class='controls'>
+            <button class='okBtn'>Ok</button>
+            <button class='cancelBtn'>Cancel</button>
+        </div>
+    </div>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="/assets/js/earcat.js"></script>
+    <script src="/assets/js/jsEar.core.js"></script>
+    <script src="/assets/js/jsEar.piano-css.js"></script>
+    <script src="/assets/js/jsEar.events.js"></script>
 <script>
+
     $(document).ready(function() {
         
-        var eCat = new EarCat();        
-        // init
-        eCat.init();     
-        eCat.loadSounds(60, 64, 67, 72);        
+        /*global EarCat: false */
+        var eCat = new EarCat('/assets/sounds/piano/');
+        /*global jsEar: false */
+        
+        jsEar('piano', 'events', function(kbrd) {
+            
+            kbrd.elem = $('#main .keyboard')[0];
+			kbrd.whiteKeyClass = "whiteKey";
+			kbrd.blackKeyClass = "blackKey";
+            kbrd.lowestNote = "C3";
+            kbrd.highestNote = "C5";
+			kbrd.init();
 
-        $('#play').on('click', function (e) {  
+			kbrd.onKeyDown(function (key) {
+				key.originalColor = key.style.backgroundColor;
+				key.style.backgroundColor = "#eee";
+                eCat.play({events:[{ pos: 0, len: 4, snd: key.note.midiNote}]});
+			});
+			
+			kbrd.onKeyUp(function (key) {
+				key.style.backgroundColor = key.originalColor;
+			});
+			
+		});       
+        
+        
+        eCat.config = {
+            rangeL: 48,
+            rangeH: 60
+        };
+                
+        $('#playBtn').on('click', function (e) {  
 
-           var seq = { 
-                notesInBar: 8,
+            var seq = {
                 events : [
                     { pos: 0, len: 4, snd: 60 },
                     { pos: 2, len: 2, snd: 64 },
@@ -32,8 +101,67 @@
                     { pos: 12, len: 8, snd: 72 }
                 ]
             };
-           eCat.playSequence(seq);
+            
+            eCat.play(seq);
 
+        });
+        
+        $('#rangeBtn').on('click', function (e) {
+            e.preventDefault();
+            $('#selectRange .okBtn').addClass('hide');
+            $('#main').addClass('hide');
+            $('#selectRange').removeClass('hide');
+            $('#selectRange h1').text();
+            
+            jsEar('piano', 'events', function(kbrd) {
+                
+                var range = {};
+            
+                kbrd.elem = $('#selectRange .keyboard')[0];
+                kbrd.whiteKeyClass = "whiteKey";
+                kbrd.blackKeyClass = "blackKey";
+                kbrd.lowestNote = "C3";
+                kbrd.highestNote = "C5";
+                kbrd.init();
+                
+                kbrd.onKeyDown(function (key) {
+                    
+                    if (range.lowest === undefined) {
+                        range.lowest = key.note.midiNote;
+                        key.originalColor = key.style.backgroundColor;
+                        key.style.backgroundColor = "#efe";
+                    }
+                    else {
+                        if (range.highest) {
+                            range.highest.style.backgroundColor =
+                                range.highest.originalColor;
+                        }
+                        range.highest = key.note.midiNote;
+                        key.originalColor = key.style.backgroundColor;
+                        key.style.backgroundColor = "#fee";
+                    }
+                    
+                    if (range.highest < range.lowsest) {
+                        var tmp = range.highest;
+                        range.highest = range.lowest;
+                        range.lowest = tmp;
+                    }
+                    
+                });
+                
+                $('#selectRange .okBtn').on('click', function () {
+                    $('#selectRange').addClass('hide'); 
+                    $('#main').removeClass('hide');
+                });
+                
+                $('#selectRange .cancelBtn').on('click', function () {
+                    $('#selectRange').addClass('hide'); 
+                    $('#main').removeClass('hide');
+                });
+                
+            
+            });  
+            
         });
         
     });

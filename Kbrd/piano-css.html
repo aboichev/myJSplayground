@@ -48,11 +48,8 @@
                 // update client width
                     clientInfoW.innerHTML = kbrd.elem.clientWidth;
                     clientInfoH.innerHTML = kbrd.elem.clientHeight;
-                };                
+                }; 
                 
-
-            
-
             kbrd.elem = document.getElementById("keyboard");
 			kbrd.whiteKeyClass = "whiteKey";
 			kbrd.blackKeyClass = "blackKey";
@@ -61,6 +58,7 @@
             window.onresize = function(event) {
                 displayClientSize();
             };
+            
             displayClientSize();         
 
             keys = kbrd.elem.getElementsByTagName('div');
@@ -70,7 +68,6 @@
                 var snd = new Audio();
                 key.note.sound = snd;
                 snd.src = audioFile;
-
             }
 
 			kbrd.onKeyDown(function (key) {

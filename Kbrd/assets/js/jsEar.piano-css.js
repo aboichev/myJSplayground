@@ -25,12 +25,12 @@ jsEar.modules.piano = function (app) {
         lowNote = app.parseNote(app.lowestNote);
         highNote = app.parseNote(app.highestNote);
 
-        for (o = lowNote.octave; o < highNote.octave; o += 1) {
+        for (o = lowNote.octave; o <= highNote.octave; o += 1) {
             notes = [];
             // draw white keys
             for (i = 0; i < 12; i++) {
                 notes[i] = app.getMidiNum(o, i);
-                notes[i].isBlack = i > 4 ? i % 2 == 0 : i % 2 != 0;
+                notes[i].isBlack = i > 4 ? i % 2 === 0 : i % 2 !== 0;
                 //draw white first
                 if (notes[i].midiNote >= lowNote.midiNote &&
                     notes[i].midiNote <= highNote.midiNote &&
