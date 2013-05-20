@@ -127,7 +127,7 @@
                 kbrd.onKeyDown(function (key) {
                     
                     if (range.lowest === undefined) {
-                        range.lowest = key.note.midiNote;
+                        range.lowest = key;
                         key.originalColor = key.style.backgroundColor;
                         key.style.backgroundColor = "#efe";
                     }
@@ -136,16 +136,18 @@
                             range.highest.style.backgroundColor =
                                 range.highest.originalColor;
                         }
-                        range.highest = key.note.midiNote;
+                        range.highest = key;
                         key.originalColor = key.style.backgroundColor;
                         key.style.backgroundColor = "#fee";
+                        
+                         if (range.highest.note.midiNote < range.lowest.note.midiNote) {
+                            var tmp = range.highest;
+                            range.highest = range.lowest;
+                            range.lowest = tmp;
+                        }
                     }
                     
-                    if (range.highest < range.lowsest) {
-                        var tmp = range.highest;
-                        range.highest = range.lowest;
-                        range.lowest = tmp;
-                    }
+
                     
                 });
                 
