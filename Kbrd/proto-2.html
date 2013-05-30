@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html land="en">
+<head>
+    <title>Bootstrap 101 Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <!--<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">-->
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <style type="text/css">
+        #keyboard {
+            position: relative;
+            overflow: auto;
+            background-color: #212;
+            height: 220px;
+
+        }
+        .key-white {
+            background-color: #eee;
+            border: 1px solid #333;
+            border-radius: 2px 2px 4px 4px;
+            box-sizing: border-box;
+        }
+        .key-black {
+            background-color: #000;
+            border: 1px solid #999;
+            border-radius: 2px 2px 4px 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="keyboard"></div>
+            <div class="myAcc">
+                <h2>Item 1</h2>
+                <p>Reload this webpage later.</p>
+                <h2>Item 2</h2>
+                <p>Check your Internet connection. Restart any router, modem, or other network devices you may be using.</p>
+                <h2>Item 3</h2>
+                <p>Check your DNS settings. Contact your network administrator if you're not sure what this means.</p>
+                <h2>Item 4</h2>
+                <p>Try disabling network prediction by following these steps: Go to the Chrome menu > Settings > Show advanced settings...
+                    and deselect "Predict network actions to improve page load performance." If this does not resolve the issue,
+                    we recommend selecting this option again for improved performance.</p>
+                <h2>Item 5</h2>
+                <p>Add Google Chrome as a permitted program in your firewall's or antivirus software's settings.
+                    If it is already a permitted program, try deleting it from the list of permitted programs and adding it again.</p>
+                <h2>Item 6</h2>
+                <p>If you use a proxy server, check your proxy settings or contact your network administrator to make
+                    sure the proxy server is working. If you don't believe you should be using a proxy server,
+                    adjust your proxy settings: Go to the Chrome menu > Settings > Show advanced settings... >
+                    Change proxy settings... > LAN Settings and deselect the "Use a proxy server for your LAN" checkbox.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--
+<script src="js/jquery-2.0.0.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script src="/assets/js/jqKbrd.js"></script>
+<script>
+$(function () {
+
+    $('#keyboard').kbrd();
+
+    var acc = $('.myAcc');
+    var pars = $('.myAcc p');
+    pars.not(':first').hide();
+    acc.on('mouseover', 'h2', function () {
+        $(this).css('cursor', 'pointer');
+    });
+    acc.on('click', 'h2', function () {
+        var p = $(this).next('p');
+        if (!p.is(':visible')) {
+            p.trigger('showParagraph');
+        }
+    });
+    acc.on('showParagraph', 'p', function () {
+        pars.stop(true, true).slideUp();
+        $(this).stop(true, true).slideDown();
+    });
+
+
+});
+</script>
+</body>
+</html>
