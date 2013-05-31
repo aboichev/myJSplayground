@@ -32,12 +32,12 @@ jsEar.modules.events = function (e) {
         e.callbkUp(src);
     };
 
-    e.constructor.prototype.getEventSrc = function (e) {
+    e.getEventSrc = function (e) {
         e = e || window.event;
         return e.target || e.srcElement;
     };
 
-    e.constructor.prototype.cancelDefault = function(e) {
+    e.cancelDefault = function(e) {
         // no bubble
         if (typeof e.stopPropagation === "function") {
             e.stopPropagation();
@@ -54,7 +54,7 @@ jsEar.modules.events = function (e) {
         }
     };
 
-    e.constructor.prototype.attachHandler = function (elem, evnt, callbk) {
+    e.attachHandler = function (elem, evnt, callbk) {
         if (document.addEventListener) { // W3C
             elem.addEventListener(evnt, callbk, false);
         } else if (document.attachEvent) { // IE
