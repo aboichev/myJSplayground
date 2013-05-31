@@ -3,7 +3,7 @@
         url = require("url"),
         fs = require("fs");
 
-    http.createServer(onRequest).listen(process.env.PORT, process.env.IP);
+    http.createServer(onRequest).listen(process.env.PORT || 8888, process.env.IP || '127.0.0.1');
     console.log("Server has started. Listening for requests on port " +  process.env.PORT + ".");
 
     function log(request) {
