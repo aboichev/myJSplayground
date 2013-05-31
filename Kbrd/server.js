@@ -76,6 +76,10 @@
                 serveStaticFile(response,
                                 currDir + "/proto-1.html");
                 break;
+            case "/proto-2/":
+                serveStaticFile(response,
+                                currDir + "/proto-2.html");
+                break;                
             case "/canvas/":
                 serveStaticFile(response,
                                 currDir + "/piano-canvas.html");
@@ -84,6 +88,11 @@
                 serveStaticFile(response,
                                 currDir + "/piano-canvas.html");
                 break;
+                
+            case "/assets/js/jqKbrd.js":
+                serveStaticFile(response,
+                                currDir + "/assets/js/jqKbrd.js",
+                                "application/javascript");                 
             case "/assets/js/earcat.js":
                 serveStaticFile(response,
                                 currDir + "/assets/js/earcat.js",

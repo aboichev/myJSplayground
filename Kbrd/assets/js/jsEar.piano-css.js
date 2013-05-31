@@ -65,7 +65,7 @@ jsEar.modules.piano = function (app) {
         }
     };
 
-    app.constructor.prototype.makeWhiteKey = function () {
+    app.makeWhiteKey = function () {
         var el = document.createElement("div");
         el.style.position = "relative";
         el.style.display = "inline-block";
@@ -80,7 +80,7 @@ jsEar.modules.piano = function (app) {
         return el;
     };
 
-    app.constructor.prototype.makeBlackKey = function () {
+    app.makeBlackKey = function () {
         var el = document.createElement("div");
         el.style.position = "absolute";
         el.style.display = "inline-block";
