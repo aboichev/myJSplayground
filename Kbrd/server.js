@@ -1,10 +1,12 @@
 (function() {
     var http = require("http"),
         url = require("url"),
-        fs = require("fs");
+        fs = require("fs"),
+        port = process.env.PORT || 8888,
+        ip = process.env.IP || '127.0.0.1';
 
-    http.createServer(onRequest).listen(process.env.PORT || 8888, process.env.IP || '127.0.0.1');
-    console.log("Server has started. Listening for requests on port " +  process.env.PORT + ".");
+    http.createServer(onRequest).listen(port, ip);
+    console.log("Server has started. Listening for requests on port " + port + ".");
 
     function log(request) {
         var path = url.parse(request.url).pathname;
