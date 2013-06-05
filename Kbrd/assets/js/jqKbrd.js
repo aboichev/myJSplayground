@@ -9,7 +9,7 @@
     }
 
     var indexToBlack = function (i) {
-        return i < 4 ? i - 1 / 2 : i / 2 - 1;
+        return i < 4 ? (i - 1) / 2 : i / 2 - 1;
     }
 
     var isBlackKey = function (i) {
@@ -31,39 +31,87 @@
     var getLastBlackKeyIndex = function (dConf, o) {
         return o == dConf.highOct && isBlackKey(dConf.highIx)? indexToBlack(dConf.highIx): 4;
     };
+    
+    var getStartIndexes = function (dConf, o) {
+        var bIx, wIx;
+        if (o !== dConf.lowOct) {
+            return [0, 0];
+        }
+        if (isBlackKey(dConf.lowIx)) {
+           bIx = indexToBlack(dConf.lowIx);
+           wIx = bIx < 2 ? bIx + 1 : bIx + 2;
+           return [wIx, bIx];
+        }
+        wIx = indexToWhite(dConf.lowIx);
+        bIx = wIx < 3 ? wIx : wIx - 2;        
+        return [wIx, bIx];
+    };
+
+    var getEndIndexes = function (dConf, o) {
+        var bIx, wIx;
+        if (o !== dConf.highOct) {
+            return [6, 4];
+        }
+        if (isBlackKey(dConf.highIx)) {
+           bIx = indexToBlack(dConf.highIx);
+           wIx = bIx < 2 ? bIx: bIx + 1;
+           return [wIx, bIx];
+        }
+        wIx = indexToWhite(dConf.highIx);
+        bIx = wIx < 3 ? wIx - 1 : wIx - 2;        
+        return [wIx, bIx];
+    };
+    
+    var getWhiteStartOffset = function (dConf) {
+        if (dConf.lowIx === 0 || !isBlackKey(dConf.lowIx)) {
+            return 0;
+        }
+        var mul = indexToBlack(dConf.lowIx) + 1;
+        return dConf.lowIx < 4 ? dConf.wkW * mul - (dConf.bkSpan1 * mul - (dConf.bkW * (mul - 1))) : 0;
+    };     
 
     $.fn.kbrd = function() {
 
-        var i, lastKey, o, notes,
+        var i, lastKey, o, notes, key, wOffset,
+            startIxs, endIxs,
             wkW, wkNum, bkW,
             startOffset = 0, octOffset = 0,
+            keysEl = $('<div />'),
             whtIx, bkIx,
             bkSpan1, bkSpan2,
             dConf = {
                 lowOct: 4,
-                lowIx: 0,
+                lowIx: 1,
                 highOct: 5,
-                highIx: 8,
+                highIx: 1,
                 wkW: 40,
-                bkW: 26
+                bkW: 24                
             };
 
-        this.css('position', 'relative');
-        this.css('white-space', 'nowrap');
+        this.css('overflow', 'auto');
+        
+        bkW = dConf.bkW;
+        wkW = dConf.wkW;
+        
+        dConf.bkSpan1 = bkSpan1 = (wkW * 3 - bkW * 2) / 3;
+        dConf.bkSpan2 = bkSpan2 = (wkW * 4 - bkW * 3) / 4;
+        
+        wOffset = getWhiteStartOffset(dConf);
 
         for (o = dConf.lowOct; o <= dConf.highOct; o += 1) {
 
             wkNum = 0;
             whtIx = 0;
             bkIx = 0;
-
-            var key, wOffset = 0;
+            
+            startIxs = getStartIndexes(dConf, o);
+            endIxs = getEndIndexes(dConf, o);
 
             notes = [];
 
             // first pass: white keys
-            i = getFirstWhiteKeyIndex(dConf, o);
-            lastKey = getLastWhiteKeyIndex(dConf, o);
+            i = startIxs[0];
+            lastKey = endIxs[0];
             for (; i <= lastKey; i++) {
 
                 key = {
@@ -72,54 +120,53 @@
                     midiNum: getMidiNum(o, i),
                     isBlack: false
                 };
-
-                key.x = dConf.wkW * i;
+                
+                key.x = wOffset;
                 key.width = dConf.wkW;
-                makeWhiteKey(key);
-
+                keysEl.append(makeWhiteKey(key));
+                wOffset += dConf.wkW;                
             }
-            wOffset = key.x + key.width;
 
             // second pass: black keys
-            i = getFirstBlackKeyIndex(dConf, o);
-            lastKey = getLastBlackKeyIndex(dConf, o);
+            i = startIxs[1];
+            lastKey = endIxs[1];
             for (; i <= lastKey; i++) {
                     
                 key = {
                     index: i,
                     target: this,
                     midiNum: getMidiNum(o, i),
-                    isBlack: true
+                    isBlack: true                   
 
                 };
-                    
-                bkW = dConf.bkW;
-                wkW = dConf.wkW;
-                
-                bkSpan1 = (wkW * 3 - bkW * 2) / 3;
-                bkSpan2 = (wkW * 4 - bkW * 3) / 4;
 
                 if (i < 2) {
-                    key.x = bkSpan1 * (i + 1) + bkW * i + octOffset;
+                    key.x = bkSpan1 * (i + 1) + bkW * i + octOffset - bkSpan1;
                 } else {
-                    key.x = bkSpan2 * (i - 1) + (bkW * (i - 2)) + (wkW * 3) + octOffset;
+                    key.x = bkSpan2 * (i - 1) + (bkW * (i - 2)) + (wkW * 3) + octOffset - bkSpan1;
                 }
                 key.width = dConf.bkW;                    
-                makeBlackKey(key);
+                keysEl.append(makeBlackKey(key));
             }   
-            octOffset += wOffset + startOffset;
+            octOffset += wOffset;
         }
+        keysEl.width(wOffset);
+        keysEl.height('200px');
+        this.append(keysEl);
     };
 
     var makeKey = function (key) {
 
-        var el = $('<div style="display:inline-block;"></div>');
-        el.css('left', key.x + 'px');
-        el.css('top', 0);
-        el.css('width', key.width + 'px');       
-        
+        var el = $('<div />', {            
+            css: { 
+              'position': 'absolute',
+              'left': key.x,
+              'width': key.width,
+              'height': '200px'
+            }
+          });
+
         el.key = key;
-        key.target.append(el);
         return el;
     };
 
