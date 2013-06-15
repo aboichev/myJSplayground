@@ -1,192 +1,172 @@
 (function ($) {
-
-    var getMidiNum = function (octave, noteId) {
-        return (octave + 1) * 12 + noteId;
-    };
-
-    var indexToWhite = function (i) {
-        return i < 5 ? i / 2 : (i + 1) / 2;
-    }
-
-    var indexToBlack = function (i) {
-        return i < 4 ? (i - 1) / 2 : i / 2 - 1;
-    }
-
-    var isBlackKey = function (i) {
+    
+    var wkW, wkH, bkW, bkH,
+    
+    startOct, startFrom, endOct, endOn,
+    
+    blkSpan1, blkSpan2,
+    
+    opts = {},
+    
+    // private functions
+    isBlack = function (i) {
         return i > 4 ? i % 2 === 0 : i % 2 !== 0;
-    };
-
-    var getFirstWhiteKeyIndex = function (dConf, o) {
-        return o == dConf.lowOct && !isBlackKey(dConf.lowIx) ? indexToWhite(dConf.lowIx): 0;
-    };
-
-    var getLastWhiteKeyIndex = function (dConf, o) {
-        return o == dConf.highOct && !isBlackKey(dConf.highIx)? indexToWhite(dConf.highIx): 6;
-    };
-
-    var getFirstBlackKeyIndex = function (dConf, o) {
-        return o == dConf.lowOct && isBlackKey(dConf.lowIx) ? indexToBlack(dConf.lowIx): 0;
-    };
-
-    var getLastBlackKeyIndex = function (dConf, o) {
-        return o == dConf.highOct && isBlackKey(dConf.highIx)? indexToBlack(dConf.highIx): 4;
-    };
-    
-    var getStartIndexes = function (dConf, o) {
-        var bIx, wIx;
-        if (o !== dConf.lowOct) {
-            return [0, 0];
+    },    
+    getOffset = function (i) {
+       var j;
+       if (isBlack(i)) {            
+           j = i < 4 ? (i - 1) / 2 : i / 2 - 1;
+           if (j < 2) {
+             return  blkSpan1 * (j + 1) + bkW * j;
+           }
+           return blkSpan2 * (j - 1) + bkW * (j - 2) + (wkW * 3);
+       }
+       j = i < 5 ? i / 2 : (i + 1) / 2;
+       return wkW * j;          
+    },       
+    makeKey = function (left, w, h, cssClass) {           
+     var el = $('<div />', {
+       'class': cssClass,
+        css: { 
+          'position': 'absolute',
+          'left': left + 'px',
+          'width': w + 'px',
+          'height': h + 'px'
         }
-        if (isBlackKey(dConf.lowIx)) {
-           bIx = indexToBlack(dConf.lowIx);
-           wIx = bIx < 2 ? bIx + 1 : bIx + 2;
-           return [wIx, bIx];
-        }
-        wIx = indexToWhite(dConf.lowIx);
-        bIx = wIx < 3 ? wIx : wIx - 2;        
-        return [wIx, bIx];
-    };
+      });
+      return el;
+    },
+    initGlobalVars = function () {
+        // init global vars
+        wkW = parseInt(opts.whiteKeyWidth, 10);
+        wkH = parseInt(opts.whiteKeyHeight, 10);            
+        bkW = parseInt(opts.blackKeyWidth, 10);
+        bkH = parseInt(opts.blackKeyHeight, 10);            
+        blkSpan1 = (wkW * 3 - bkW * 2) / 3; 
+        blkSpan2 = (wkW * 4 - bkW * 3) / 4;            
+        startOct = parseInt(opts.lowestOctive, 10);
+        startFrom = parseInt(opts.lowestKeyIndex, 10);            
+        endOct = parseInt(opts.highestOctive, 10);
+        endOn = parseInt(opts.highestKeyIndex, 10);
+    };    
 
-    var getEndIndexes = function (dConf, o) {
-        var bIx, wIx;
-        if (o !== dConf.highOct) {
-            return [6, 4];
-        }
-        if (isBlackKey(dConf.highIx)) {
-           bIx = indexToBlack(dConf.highIx);
-           wIx = bIx < 2 ? bIx: bIx + 1;
-           return [wIx, bIx];
-        }
-        wIx = indexToWhite(dConf.highIx);
-        bIx = wIx < 3 ? wIx - 1 : wIx - 2;        
-        return [wIx, bIx];
-    };
-    
-    var getWhiteStartOffset = function (dConf) {
-        if (dConf.lowIx === 0 || !isBlackKey(dConf.lowIx)) {
-            return 0;
-        }
-        var mul = indexToBlack(dConf.lowIx) + 1;
-        return dConf.lowIx < 4 ? dConf.wkW * mul - (dConf.bkSpan1 * mul - (dConf.bkW * (mul - 1))) : 0;
-    };     
-
-    $.fn.kbrd = function() {
-
-        var i, lastKey, o, notes, key, wOffset,
-            startIxs, endIxs,
-            wkW, wkNum, bkW,
-            startOffset = 0, octOffset = 0,
-            keysEl = $('<div />'),
-            whtIx, bkIx,
-            bkSpan1, bkSpan2,
-            dConf = {
-                lowOct: 4,
-                lowIx: 1,
-                highOct: 5,
-                highIx: 1,
-                wkW: 40,
-                bkW: 24                
-            };
-
-        this.css('overflow', 'auto');
+    $.fn.kbrd = function(userOpt) {
         
-        bkW = dConf.bkW;
-        wkW = dConf.wkW;
-        
-        dConf.bkSpan1 = bkSpan1 = (wkW * 3 - bkW * 2) / 3;
-        dConf.bkSpan2 = bkSpan2 = (wkW * 4 - bkW * 3) / 4;
-        
-        wOffset = getWhiteStartOffset(dConf);
-
-        for (o = dConf.lowOct; o <= dConf.highOct; o += 1) {
-
-            wkNum = 0;
-            whtIx = 0;
-            bkIx = 0;
+        var i, o, end, left, startOffset, curOctWidth, nextKeyOffset,
+            // keys container
+            $keys = $('<div />');
             
-            startIxs = getStartIndexes(dConf, o);
-            endIxs = getEndIndexes(dConf, o);
+        // option defaults
+        opts = {
+            whiteKeyWidth: 40,
+            whiteKeyHeight: 200,
+            blackKeyWidth: 22,
+            blackKeyHeight: 100,
+            lowestOctive: 4,
+            lowestKeyIndex: 11,
+            highestOctive: 5,
+            highestKeyIndex: 3,
+            drawDummyKeys: true,
+            addToHeight: 20,
+        
+            drawWhiteKey: function (left, w, h) {
+                return makeKey(left, w, h, 'whiteKey');
+            },
+            drawWhiteStartDummy: function (left, w, h) {
+               return makeKey(left, w, h, 'whiteKey start-dummy');
+            },
+            drawWhiteEndDummy: function (left, w, h) {
+               return makeKey(left, w, h, 'whiteKey end-dummy');
+            },        
+            drawBlackKey: function (left, w, h) {
+                return makeKey(left, w, h, 'blackKey');
+            },
+            drawBlackStartDummy: function (left, w, h) {
+               return makeKey(left, w, h, 'blackKey start-dummy');
+            },
+            drawBlackEndDummy: function (left, w, h) {
+               return makeKey(left, w, h, 'blackKey end-dummy');
+            },
+        };
+        // override defaults with user options
+        $.extend(opts, userOpt);       
 
-            notes = [];
-
-            // first pass: white keys
-            i = startIxs[0];
-            lastKey = endIxs[0];
-            for (; i <= lastKey; i++) {
-
-                key = {
-                    index: i,
-                    target: this,
-                    midiNum: getMidiNum(o, i),
-                    isBlack: false
-                };
-                
-                key.x = wOffset;
-                key.width = dConf.wkW;
-                keysEl.append(makeWhiteKey(key));
-                wOffset += dConf.wkW;                
+        initGlobalVars();        
+        
+        startOffset = -getOffset(startFrom);
+        // draw start dummy keys
+        if (startFrom > 0 && opts.drawDummyKeys) {
+            if (isBlack(startFrom)) {
+                nextKeyOffset = getOffset(startFrom + 1) + startOffset;
+                $keys.append(opts.drawWhiteStartDummy(
+                        0, nextKeyOffset, wkH));
             }
-
-            // second pass: black keys
-            i = startIxs[1];
-            lastKey = endIxs[1];
-            for (; i <= lastKey; i++) {
-                    
-                key = {
-                    index: i,
-                    target: this,
-                    midiNum: getMidiNum(o, i),
-                    isBlack: true                   
-
-                };
-
-                if (i < 2) {
-                    key.x = bkSpan1 * (i + 1) + bkW * i + octOffset - bkSpan1;
-                } else {
-                    key.x = bkSpan2 * (i - 1) + (bkW * (i - 2)) + (wkW * 3) + octOffset - bkSpan1;
-                }
-                key.width = dConf.bkW;                    
-                keysEl.append(makeBlackKey(key));
-            }   
-            octOffset += wOffset;
+            if (!isBlack(startFrom)) {
+                nextKeyOffset = getOffset(startFrom + 1) + startOffset;
+                $keys.append(opts.drawBlackStartDummy(
+                        0, nextKeyOffset - blkSpan1, bkH));             
+            }        
         }
-        keysEl.width(wOffset);
-        keysEl.height('200px');
-        this.append(keysEl);
-    };
-
-    var makeKey = function (key) {
-
-        var el = $('<div />', {            
-            css: { 
-              'position': 'absolute',
-              'left': key.x,
-              'width': key.width,
-              'height': '200px'
+        
+        // octave loop
+        for (o = startOct; o <= endOct; o += 1) {        
+            // draw white keys
+            i = (o === startOct) ? startFrom : 0;
+            end = (o === endOct) ? endOn : 11;
+            
+            for (; i <= end; i += 1) {
+                if (!isBlack(i)) {        
+                    left = getOffset(i) + startOffset;
+                    $keys.append(opts.drawWhiteKey(left, wkW, wkH));
+                }
             }
-          });
+            curOctWidth = left + wkW;       
+            // reset i before drawing black keys
+            i = (o === startOct) ? startFrom : 0;
+            
+            // draw black start dummy key after white keys (to have it on top)
+            if (i > 0 && opts.drawDummyKeys) {
+                if (!isBlack(startFrom)) {
+                    nextKeyOffset = getOffset(startFrom + 1) + startOffset;
+                    $keys.append(opts.drawBlackStartDummy(
+                        0, nextKeyOffset - blkSpan1, bkH));             
+                }            
+            }
+            
+            // draw black normal keys     
+            for (; i <= end; i += 1) {
+                if (isBlack(i)) {
+                    // get black key offset
+                    left = getOffset(i) + startOffset;
+                    // draw dummy white end key before last black
+                    if (i == endOn && opts.drawDummyKeys) {                    
+                       $keys.append(opts.drawWhiteEndDummy(
+                            curOctWidth, left + bkW - curOctWidth, wkH));   
+                    }
+                    // draw black key
+                    $keys.append(opts.drawBlackKey(left, bkW, bkH));
+                }
+            }
+            
+            // draw black end dummy key
+            i -= 1;
+            if (o == endOct && i == endOn && endOn < 11 && endOn !== 4
+                    && opts.drawDummyKeys && !isBlack(i)) {
+                nextKeyOffset = getOffset(i + 1) + startOffset;
+                $keys.append(opts.drawBlackEndDummy(
+                    nextKeyOffset, curOctWidth - nextKeyOffset, bkH));
+            } 
+            // set offset for the next octave
+            startOffset = curOctWidth;
+        }
+        
+        $keys.css({
+            'position': 'relative',
+            'width': curOctWidth,
+            'height': wkH 
+        });         
 
-        el.key = key;
-        return el;
+        this.html($keys); 
     };
-
-    var makeWhiteKey = function (key) {
-
-        var el = makeKey(key);
-        el.addClass('key-white');
-        el.css('height', '200px');
-        return el;
-    };
-
-    var makeBlackKey = function (key) {
-
-        var el = makeKey(key);        
-        el.addClass('key-black');
-        el.css('position', 'absolute');
-        el.css('height', '100px');
-        return el;
-    };
-
-
-
+    
 }(jQuery));
