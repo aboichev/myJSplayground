@@ -6,11 +6,13 @@
         ip = process.env.IP || '127.0.0.1';
 
     http.createServer(onRequest).listen(port, ip);
-    console.log("Server has started. Listening for requests on port " + port + ".");
+    console.log("Server has started. Listening for requests on port " +
+        port + ".");
 
     function log(request) {
         var path = url.parse(request.url).pathname;
-        process.stdout.write(request.connection.remoteAddress + " -> " + request.method + " " + path + " -> ");
+        process.stdout.write(request.connection.remoteAddress + " -> " +
+            request.method + " " + path + " -> ");
     }
 
     function html(lang, title, body) {
@@ -23,7 +25,7 @@
     function http404 (response) {
         response.writeHead(404, {"Content-Type": "text/html"});
         response.write(html("en",
-            "404","<h1>Sorry, this 404 page is not what you're looking for.</h1>"));
+    "404","<h1>Sorry, this 404 page is not what you're looking for.</h1>"));
         response.end();
         console.log(404);
     }
@@ -31,7 +33,7 @@
     function http500 (response) {
         response.writeHead(500, {"Content-Type": "text/html"});
         response.write(html("en",
-            "Server Error 500","<h1>Sorry, something broke. Try again later (500)</h1>"));
+ "Server Error 500","<h1>Sorry, something broke. Try again later (500)</h1>"));
         response.end();
         console.log(500);
     }
@@ -94,7 +96,13 @@
             case "/assets/js/jqKbrd.js":
                 serveStaticFile(response,
                                 currDir + "/assets/js/jqKbrd.js",
-                                "application/javascript");                 
+                                "application/javascript");
+                break;
+            case "/assets/js/range.js":
+                serveStaticFile(response,
+                                currDir + "/assets/js/range.js",
+                                "application/javascript");
+                break;                
             case "/assets/js/earcat.js":
                 serveStaticFile(response,
                                 currDir + "/assets/js/earcat.js",

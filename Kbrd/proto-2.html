@@ -1,39 +1,50 @@
 <!DOCTYPE html>
 <html land="en">
 <head>
-    <title>Bootstrap 101 Template</title>
+    <title>My Keyboard Drawing Project</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <!--<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">-->
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
     <style type="text/css">
 
-        #keyboard {
+        .keyboard {
           overflow: auto;
           box-sizing: border-box;
           border: 1px #eee solid;
         }
-        #keyboard div {
+      
+        .keyboard div {
             box-sizing: border-box;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 13px;
+            border-bottom-left-radius: 13px;
         }
         .whiteKey {
           border: 1px #222 solid;
           background-color: #eed;
+        }        
+        .blackKey {
+            background-color: #1A1A1A;
+            border-bottom-right-radius: 6px;
+            border-bottom-left-radius: 6px;
         }
-        
         .start-dummy {
           border-left: none;
-          border-bottom-left-radius: 0;
+          border-bottom-left-radius: 0 !important;
         }        
         .end-dummy {
           border-right: none;
-          border-bottom-right-radius: 0;
+          border-bottom-right-radius: 0 !important;
         }
-        .blackKey {
-            background-color: #000;
+        .keydown {
+            background-color: #B1C072;
         }
+        .low-range {
+            background-color: red;
+        }
+        .high-range {
+            background-color: blue;
+        }        
         input[type="number"] {
             width: 3.0em;
         }
@@ -43,42 +54,101 @@
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="span12">
-            <div>
-                White Key Width: <input type="number" id="wkW" min="10" max="10000" value="40" />
-                White Key Height: <input type="number" id="wkH" min="10" max="10000" value="200" />
-                Black Key Width: <input type="number" id="bkW" min="10" max="10000" value="24" />
-                Black Key Height: <input type="number" id="bkH" min="10" max="10000" value="100" />                
-                Start From: <input type="number" id="lowIx" min="0" max="11" value="0" /><input type="number" id="lowOct" min="2" max="7" value="2" />
-                End On:     <input type="number" id="highIx" min="0" max="11" value="11"><input type="number" id="highOct" min="2" max="7" value="7" />
-            </div>        
-            <div id="keyboard"></div>
-        </div>
+            <div id="keyboard" class="keyboard"></div>            
+            <div id="controls" class="clearfix">
+                Start From: <input type="number" id="lowIx" min="0" max="11" value="0" /><input type="number" id="lowOct" min="2" max="7" value="4" />
+                End On: <input type="number" id="highIx" min="0" max="11" value="11"><input type="number" id="highOct" min="2" max="7" value="4" />
+                <a id="rangeBtn" class="btn btn-small pull-right" href="#"><i class="icon-resize-horizontal"></i> Range</a>
+            </div>
+            <div id="rangeKbrd" class="keyboard hide"></div>
+            <div id="rangeMessage" class="hide">Select Range</div>
+        </div>        
     </div>
+
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
 <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 <script src="/assets/js/jqKbrd.js"></script>
+<script src="/assets/js/range.js"></script>
+
 <script>
-$(function () {
+$(document).ready(function () {
     
-    $('input').on('change', function() {
-        var opts = {
-            lowestOctive: $('#lowOct').val(),
-            lowestKeyIndex: $('#lowIx').val(),
-            highestOctive: $('#highOct').val(),
-            highestKeyIndex: $('#highIx').val(),
-            whiteKeyWidth: $('#wkW').val(),
-            whiteKeyHeight: $('#wkH').val(),
-            blackKeyWidth: $('#bkW').val(),
-            blackKeyHeight: $('#bkH').val()       
+    var $win =$(window),
+        $ctrls = $('#controls'),
+        $kbrd = $('#keyboard'),
+        $rangeKbrd = $('#rangeKbrd'),
+        $rangeBtn = $('#rangeBtn'),
+        
+        rangeData = {
+            lowestOctave: "1",
+            lowestKeyIndex: "4",
+            highestOctave: "7",
+            highestKeyIndex: "0"
+        },
+        
+        rangeSelector = new RangeSelector(rangeData),
+        
+        opts = {        
+            onKeyDown: function ($key) {
+                $key.addClass('keydown');
+            },
+            onKeyUp: function ($key) {
+                $key.removeClass('keydown');
+            }
         };
         
-        $('#keyboard').kbrd(opts);
-    });
+
+    function keyboardRedraw(w, h) {
         
-    $('input').trigger('change');
-
-
+        var keysHeight = $win.height() - $ctrls.height() - 20;
+        
+        opts.lowestOctave = $('#lowOct').val();
+        opts.lowestKeyIndex = $('#lowIx').val();
+        opts.highestOctave = $('#highOct').val();
+        opts.highestKeyIndex = $('#highIx').val();
+        
+        opts.whiteKeyHeight = keysHeight;
+        opts.blackKeyHeight = 0.5 * keysHeight;
+        
+        opts.resizeToParent = w
+        opts.minKeyWidth = 70;
+        $kbrd.kbrd(opts);               
+    }
+    
+    function onWinResized() { 
+        
+        var width = $kbrd.width();
+        var height = $win.height();
+        
+        // normal keyboard redraw        
+        if (!$kbrd.is(':hidden')) { 
+            keyboardRedraw(width, height);
+        }        
+        // range selection keyboard redraw        
+        if (!$rangeKbrd.is(':hidden')) {
+            rangeSelector.redraw(width, height);
+        }
+    }
+        
+    $rangeBtn.on('click', function (e) { 
+        e.preventDefault();
+        $kbrd.hide();
+        $ctrls.hide();
+        rangeSelector.show();
+        onWinResized();
+    });
+          
+    // redraw keyboard when keys range change
+    $('input').on('change', keyboardRedraw());
+    
+    // redraw keyboard on window's resize
+    $(window).resize(function (e) {
+        clearTimeout(e.id);
+        e.id = setTimeout(onWinResized, 100);
+    });   
+    
+    onWinResized();
 });
 </script>
 </body>
