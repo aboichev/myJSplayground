@@ -1,10 +1,10 @@
 (function() {
-    var port = 8888,
+    var port = process.env.PORT || 8888,
         http = require("http"),
         url = require("url"),
         fs = require("fs");
 
-    http.createServer(onRequest).listen(process.env.PORT || port);
+    http.createServer(onRequest).listen(port);
     console.log("Server has started. Listening for requests on port " + port + ".");
 
     function log(request) {
@@ -59,12 +59,12 @@
     function onRequest(request, response) {
 
         var uri = url.parse(request.url).pathname,
-            currDir = process.cwd();
+            currDir = __dirname;
 
         log(request);
 
         // route sound resource
-        if (uri.indexOf('/assets/sounds/piano/') == 0) {
+        if (uri.indexOf('/assets/sounds/piano/') === 0) {
             serveStaticFile(response, currDir + uri, "audio/mpeg", '*');
             return;
         }
@@ -79,6 +79,21 @@
             case "/canvas":
                 serveStaticFile(response, currDir + "/piano-canvas.html");
                 break;
+            case "/proto-1/":
+                serveStaticFile(response, currDir + "/proto-1.html");
+                break;
+            case "/proto-2/":
+                serveStaticFile(response, currDir + "/proto-2.html");
+                break;
+            case "/assets/js/earcat.js":
+                serveStaticFile(response, currDir + "/assets/js/earcat.js", "application/javascript");
+                break;
+            case "/assets/js/jqKbrd.js":
+                serveStaticFile(response, currDir + "/assets/js/jqKbrd.js", "application/javascript");
+                break; 
+            case "/assets/js/range.js":
+                serveStaticFile(response, currDir + "/assets/js/range.js", "application/javascript");
+                break;                 
             case "/assets/js/jsEar.core.js":
                 serveStaticFile(response, currDir + "/assets/js/jsEar.core.js", "application/javascript");
                 break;
